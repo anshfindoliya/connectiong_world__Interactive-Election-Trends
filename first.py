@@ -1,1 +1,1 @@
-vansh
+print vansh
