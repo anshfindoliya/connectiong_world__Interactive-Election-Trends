@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Data Analysis Result</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        canvas {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analysis Result for Year {{ years[0] }}</h1> <!-- Display the selected year -->
+
+    <h2>Bar Chart: Total Votes by Party</h2>
+    <canvas id="barChart"></canvas>
+
+    <h2>Pie Chart: Vote Distribution by Party</h2>
+    <canvas id="pieChart"></canvas>
+
+    <br>
+    <a href="/">Upload another file</a>
+
+    <script>
+        // Data from Flask
+        const partyVotes = {{ party_votes | tojson }};
+        const partyNames = partyVotes.map(p => p.Party);
+        const totalVotes = partyVotes.map(p => p.Votes);
+
+        // Bar Chart
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: partyNames,
+                datasets: [{
+                    label: 'Total Votes',
+                    data: totalVotes,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Pie Chart
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        const pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: partyNames,
+                datasets: [{
+                    label: 'Vote Distribution',
+                    data: totalVotes,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+
+        // Line Chart
+        const ctxLine = document.getElementById('lineChart').getContext('2d');
+        const years = {{ years | tojson }};
+        const votesByParty = {{ votes_by_party | tojson }};
+        const datasets = votesByParty.map((partyData, index) => ({
+            label: partyNames[index],
+            data: partyData,
+            fill: false,
+            borderColor: `hsl(${index * 60}, 100%, 50%)`,
+            tension: 0.1
+        }));
+
+        const lineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: years,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Votes Over Years by Party'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
